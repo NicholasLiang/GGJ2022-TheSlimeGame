@@ -42,6 +42,13 @@ namespace Platformer.Mechanics
 
         public Bounds Bounds => collider2d.bounds;
 
+        public bool lookingRight; 
+        public GameObject bullet;
+        public float bulletSpeed;
+        public float bulletCD;
+        public float bulletHeightOffset;
+        private float previousShootingTime = 0;
+
         void Awake()
         {
             health = GetComponent<Health>();
@@ -56,6 +63,24 @@ namespace Platformer.Mechanics
             if (controlEnabled)
             {
                 move.x = Input.GetAxis("Horizontal");
+                if (move.x > 0.01) {
+                    lookingRight = true;
+                } else if (move.x < -0.01) {
+                    lookingRight = false;
+                }
+
+                if (Input.GetKey(KeyCode.Z))
+                {
+                    if (Time.time - previousShootingTime > bulletCD)
+                    {
+                        previousShootingTime = Time.time;
+                        GameObject newbullet = Instantiate(bullet);
+                        newbullet.transform.position = this.transform.position + new Vector3(0, bulletHeightOffset, 0);
+                        float direction = lookingRight ? 1 : -1;
+                        newbullet.GetComponent<Rigidbody2D>().velocity = new Vector2(direction * bulletSpeed, 0);
+                    }
+                }
+
                 if (jumpState == JumpState.Grounded && Input.GetButtonDown("Jump"))
                     jumpState = JumpState.PrepareToJump;
                 else if (Input.GetButtonUp("Jump"))
