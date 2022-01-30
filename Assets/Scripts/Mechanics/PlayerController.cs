@@ -93,7 +93,7 @@ namespace Platformer.Mechanics
                 if (Mathf.Abs(Input.GetAxis("Horizontal")) > 0.01)
                 {
                     move.x = Input.GetAxis("Horizontal");
-                } else {
+                } else if (Input.touchCount == 0) {
                     move.x = 0;
                 }
             

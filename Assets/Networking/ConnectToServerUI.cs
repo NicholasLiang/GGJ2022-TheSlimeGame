@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class ConnectToServerUI : MonoBehaviour
 {
@@ -28,7 +27,7 @@ public class ConnectToServerUI : MonoBehaviour
 
     public void connect()
     {
-        string url = inputField.GetComponent<TMP_InputField>().text;
+        string url = inputField.GetComponent<InputField>().text;
 
         networking.StartConnection(url);
     }

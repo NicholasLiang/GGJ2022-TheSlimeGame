@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 
 public class CreateRoomUI : MonoBehaviour
@@ -15,7 +14,7 @@ public class CreateRoomUI : MonoBehaviour
 
     public void CreateRoom()
     {
-        string name = inputField.GetComponent<TMP_InputField>().text;
+        string name = inputField.GetComponent<InputField>().text;
 
         networking.CreateRoom(name);
 
