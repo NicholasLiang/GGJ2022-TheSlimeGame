@@ -35,19 +35,34 @@ namespace Platformer.Mechanics
         public bool controlEnabled = true;
 
         bool jump;
-        Vector2 move;
+        public Vector2 move;
         SpriteRenderer spriteRenderer;
         internal Animator animator;
         readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
         public Bounds Bounds => collider2d.bounds;
 
+        // bullet
+        public bool touchShoot;
+        public bool isShooting;
         public bool lookingRight; 
+        
         public GameObject bullet;
         public float bulletSpeed;
         public float bulletCD;
         public float bulletHeightOffset;
         private float previousShootingTime = 0;
+
+        // bouncing
+        public bool isBouncing;
+
+        // touch screen move
+        public bool isTouchScreenMove;
+
+        // is keyboard
+        public bool isKeyboard;
+
+        public bool isRed;
 
         void Awake()
         {
@@ -56,36 +71,61 @@ namespace Platformer.Mechanics
             collider2d = GetComponent<Collider2D>();
             spriteRenderer = GetComponent<SpriteRenderer>();
             animator = GetComponent<Animator>();
+
+            isBouncing = false;
+            isTouchScreenMove = false;
+            touchShoot = false;
+            isKeyboard = false;
         }
 
         protected override void Update()
         {
+            if (Input.GetKey(KeyCode.Z) || touchShoot)
+            {
+                isShooting = true;
+            } else {
+                isShooting = false;
+            }
+
             if (controlEnabled)
             {
-                move.x = Input.GetAxis("Horizontal");
+                
+                if (Mathf.Abs(Input.GetAxis("Horizontal")) > 0.01)
+                {
+                    move.x = Input.GetAxis("Horizontal");
+                } else {
+                    move.x = 0;
+                }
+            
                 if (move.x > 0.01) {
                     lookingRight = true;
                 } else if (move.x < -0.01) {
                     lookingRight = false;
                 }
 
-                if (Input.GetKey(KeyCode.Z))
-                {
-                    if (Time.time - previousShootingTime > bulletCD)
-                    {
-                        previousShootingTime = Time.time;
-                        GameObject newbullet = Instantiate(bullet);
-                        newbullet.transform.position = this.transform.position + new Vector3(0, bulletHeightOffset, 0);
-                        float direction = lookingRight ? 1 : -1;
-                        newbullet.GetComponent<Rigidbody2D>().velocity = new Vector2(direction * bulletSpeed, 0);
-                    }
-                }
+                // bullet
+                // if (isShooting && isRed)
+                // {
+                //     if (Time.time - previousShootingTime > bulletCD)
+                //     {
+                //         previousShootingTime = Time.time;
+                //         GameObject newbullet = Instantiate(bullet);
+                //         newbullet.transform.position = this.transform.position + new Vector3(0, bulletHeightOffset, 0);
+                //         float direction = lookingRight ? 1 : -1;
+                //         newbullet.GetComponent<Rigidbody2D>().velocity = new Vector2(direction * bulletSpeed, 0);
+                //     }
+                // }
 
-                if (jumpState == JumpState.Grounded && Input.GetButtonDown("Jump"))
-                    jumpState = JumpState.PrepareToJump;
-                else if (Input.GetButtonUp("Jump"))
+                // button jumb
+                if ((isBouncing && jumpState == JumpState.Grounded))
                 {
+                    jumpState = JumpState.PrepareToJump;
+                } else if (jumpState == JumpState.Grounded && Input.GetButtonDown("Jump")){
+                    jumpState = JumpState.PrepareToJump;
+                    isKeyboard = true;
+                } else if ((!isBouncing && !isKeyboard) || Input.GetButtonUp("Jump")) {
                     stopJump = true;
+                    isKeyboard = false;
                     Schedule<PlayerStopJump>().player = this;
                 }
             }
